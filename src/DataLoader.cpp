@@ -10,6 +10,7 @@
 #include <vector>
 #include <cassert>
 #include <string>
+#include <ctime>
 
 std::vector<Bar> loadCSV(const std::string& filename) {
     std::vector<Bar> data;
@@ -43,9 +44,26 @@ std::vector<Bar> loadCSV(const std::string& filename) {
 
 
 
-        current.timestamp = 0;
+        current.timestamp = 0.0;
+
+
 
         getline(ss, field,',');
+
+        int year, month, day;
+        std::sscanf(field.c_str(), "%d-%d-%d", &year, &month, &day);
+
+        std::tm tm{};
+
+        tm.tm_year = year -1900;
+        tm.tm_mon = month -1;
+        tm.tm_mday = day;
+
+        std::time_t t = std::mktime(&tm);
+
+        current.timestamp = t;
+
+
         getline(ss, field,',');
         current.open=stod(field);
 
@@ -61,7 +79,17 @@ std::vector<Bar> loadCSV(const std::string& filename) {
         getline(ss, field,',');
         current.volume =stod(field);
 
+
+        if (data.size() > 0) {
+
+            Bar back = data.back() ;
+
+            assert(back.timestamp < current.timestamp);
+
+        }
+
         data.push_back(current);
+
 
     }
 

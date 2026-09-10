@@ -11,6 +11,10 @@ int main() {
     std::cout << " Size: " << OHLCV.back().open << " "<< OHLCV.back().close << '\n';
     std::cout << "Dimesnions" << OHLCV.size() << '\n';
 
+    std::cout << "Time:" << OHLCV[0].timestamp << '\n';
+
+
+
 
 
 
