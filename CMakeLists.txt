@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # 1. Main Application Executable
-add_executable(BacktestingEngine main.cpp)
+add_executable(BacktestingEngine main.cpp src/DataLoader.cpp)
 
 # 2. Fetch Catch2 v3 framework
 include(FetchContent)

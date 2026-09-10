@@ -1,15 +1,18 @@
 #include <iostream>
-#include <concepts>
 
-// A C++20 concept check
-template<typename T>
-concept Numeric = std::is_arithmetic_v<T>;
+#include <vector>
 
-void print_number(Numeric auto val) {
-    std::cout << "Value: " << val << "\n";
-}
+#include "src/Bar.h"
+#include "src/DataLoader.h"
 
 int main() {
-    print_number(42);
-    return 0;
+    std::vector<Bar> OHLCV = loadCSV("data/AAPL.csv");
+    std::cout << "Open: " << OHLCV[0].open << " Close: " << OHLCV[0].close << '\n';
+    std::cout << " Size: " << OHLCV.back().open << " "<< OHLCV.back().close << '\n';
+    std::cout << "Dimesnions" << OHLCV.size() << '\n';
+
+
+
+
+
 }
