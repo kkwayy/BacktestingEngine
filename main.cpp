@@ -8,7 +8,7 @@
 #include "src/Backtester.h"
 #include "src/BuyandHold.h"
 #include "src/Order.h"
-
+#include "src/SMA.h"
 
 int main() {
     std::vector<Bar> OHLCV = loadCSV("data/AAPL.csv");
@@ -43,7 +43,34 @@ int main() {
 
     std::cout<<"Wrote equity_curve.csv (" <<equityCurve.size()<<" points). Plot with python plot_equitycurve.py\n";
 
+
+    SMA s2(20,50);
+
+    Backtester backtester2(OHLCV,s2);
+
+    std::vector<double> equityCurve2 = backtester2.execute();
+
+    std::cout << equityCurve2.size() <<'\n';
+    std::cout << "Equity[0]: " << equityCurve2[0] << '\n';
+    std::cout << "Equity[1]: " << equityCurve2[1] << '\n';
+    std::cout << "Equity[2]: " << equityCurve2[2] << '\n';
+    std::cout << "Equity[last]: " << equityCurve2.back() << '\n';
+
+    std::ofstream out2("equity_curve2.csv");
+    out2 <<"Price\n";
+    out2.setf(std::ios::fixed);
+    out2.precision(10);
+
+    for (const auto& p: equityCurve2)
+        out2<<p<<'\n';
+    out2.close();
+
+    std::cout<<"Wrote equity_curve.csv (" <<equityCurve2.size()<<" points). Plot with python plot_equitycurve2.py\n";
+
+
+
     return 0;
+
 
 
 

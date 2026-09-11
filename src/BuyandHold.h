@@ -10,6 +10,7 @@
 class BuyandHold: public Strategy{
 public:
     std::vector<Order> onbar(const MarketView& view) override;
+
 };
 
 #endif //FETCH_PRICES_PY_BUYANDHOLD_H
