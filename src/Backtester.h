@@ -13,7 +13,7 @@
 class Backtester {
 public:
     Backtester(const std::vector<Bar>& data , Strategy& strategy);
-    std::vector<Order> execute();
+    std::vector<double> execute();
 private:
     const std::vector<Bar>& view ;
     Strategy& strategy ;
