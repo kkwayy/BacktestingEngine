@@ -4,6 +4,7 @@
 
 #include "MarketView.h"
 #include "Bar.h"
+#include <stdexcept>
 
 
 MarketView::MarketView(const std::vector<Bar> &data, const size_t &limit)
@@ -16,7 +17,7 @@ size_t MarketView::size() const {
 }
 
 const Bar& MarketView::operator()(size_t index) const{
-    assert(index < limit);
+    if (index >= limit) throw std::out_of_range("MarketView: access beyond current time");;
 
     return view[index];
 

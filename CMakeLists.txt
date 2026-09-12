@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # 1. Main Application Executable
-add_executable(BacktestingEngine main.cpp src/DataLoader.cpp src/Backtester.cpp src/BuyandHold.cpp src/MarketView.cpp src/Portfolio.cpp src/SMA.cpp)
+add_executable(BacktestingEngine main.cpp src/DataLoader.cpp src/Backtester.cpp src/BuyandHold.cpp src/MarketView.cpp src/Portfolio.cpp src/SMA.cpp src/Indicators.cpp)
 
 # 2. Fetch Catch2 v3 framework
 include(FetchContent)
@@ -22,7 +22,7 @@ FetchContent_MakeAvailable(Catch2)
 enable_testing()
 
 # 4. Create the test executable
-add_executable(unit_tests test.cpp)
+add_executable(unit_tests test.cpp src/MarketView.cpp src/SMA.cpp src/Indicators.cpp src/Portfolio.cpp )
 
 # Link Catch2's automatic main entry point
 target_link_libraries(unit_tests PRIVATE Catch2::Catch2WithMain)
