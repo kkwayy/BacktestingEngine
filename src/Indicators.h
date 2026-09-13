@@ -3,15 +3,18 @@
 //
 
 
-#ifndef FETCH_PRICES_PY_INDICATORS_H
-#define FETCH_PRICES_PY_INDICATORS_H
+
 
 #pragma once
 #include "MarketView.h"
-
+#include "MarketDataSoA.h"
+// AoS
 double sma(const MarketView& view, size_t window);
 double vwap(const MarketView& view, size_t window);
 double rollingVol(const MarketView& view, size_t window);
+// Soa
+double smaA(const MarketDataSoA& view, size_t window);
+double vwapA(const MarketDataSoA& view, size_t window);
+double rollingVolA(const MarketDataSoA& view, size_t window);
 
 
-#endif //FETCH_PRICES_PY_INDICATORS_H

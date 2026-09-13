@@ -44,5 +44,4 @@ set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googlebenchmark)
 
 # Benchmark Executable
-add_executable(benchmarks benchmarks/bench_main.cpp)
-target_link_libraries(benchmarks PRIVATE benchmark::benchmark)
+add_executable(benchmarks benchmarks/bench_main.cpp src/DataLoader.cpp src/Backtester.cpp src/BuyandHold.cpp src/MarketView.cpp src/Portfolio.cpp src/SMA.cpp src/Indicators.cpp)
