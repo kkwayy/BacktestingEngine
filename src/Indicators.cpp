@@ -5,6 +5,7 @@
 #include "Indicators.h"
 #include "Order.h"
 #include <cmath>
+#include <immintrin.h>
 
 
 double sma(const MarketView &view, size_t window) {
@@ -179,3 +180,41 @@ double rollingVolA(const MarketDataSoA &view, size_t window) {
 
 }
 
+double smaSIMD(const MarketDataSoA &view, size_t window) {
+    if (view.closes.size() < window) {
+        return 0.0;
+    }
+
+    size_t size = view.closes.size();
+
+    // --- Setup ---
+    // Start index: sum the last 'window' elements from the closes array
+    size_t start = size - window;
+
+    // SIMD processes 4 doubles per iteration — find how many full groups of 4 fit
+    size_t simdEnd = (window / 4) * 4;
+
+    // AVX2 accumulator: 256-bit register holding 4 running partial sums, initialised to zero
+    __m256d acc = _mm256_setzero_pd();
+
+    // --- SIMD loop: process 4 elements per iteration ---
+    for (size_t i = 0; i < simdEnd; i += 4) {
+        // Load 4 contiguous doubles from closes[] into a 256-bit register
+        __m256d chunk = _mm256_loadu_pd(&view.closes[start + i]);
+        // Add all 4 to the accumulator in a single instruction
+        acc = _mm256_add_pd(acc, chunk);
+    }
+
+    // --- Horizontal sum: reduce 4 partial sums to one total ---
+    double temp[4];
+    _mm256_storeu_pd(temp, acc);  // Store the 4 partial sums back to memory
+    double total = temp[0] + temp[1] + temp[2] + temp[3];
+
+    // --- Tail: handle remaining elements that don't fill a full SIMD register ---
+    for (size_t j = simdEnd; j < window; j++) {
+        total += view.closes[j + start];
+    }
+
+    double mean = total / window;
+    return mean;
+}

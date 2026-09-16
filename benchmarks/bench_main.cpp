@@ -100,13 +100,23 @@ long long timeSoAVol(const MarketDataSoA& data) {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / ITERS;
 }
 
+long long timeSIMDSMA(const MarketDataSoA& data) {
+    double sink = 0.0;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < ITERS; i++) sink += smaSIMD(data, WINDOW);
+    auto end = std::chrono::high_resolution_clock::now();
+    volatile double dummy = sink;
+    (void)dummy;
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / ITERS;
+}
+
 int main() {
     std::vector<size_t> sizes = {2500, 10000, 100000, 500000, 1000000};
 
     std::cout << "=== AoS vs SoA Benchmark (window=" << WINDOW << ", iters=" << ITERS << ") ===\n\n";
 
-    std::cout << "Data Size   | SMA AoS | SMA SoA | VWAP AoS | VWAP SoA | Vol AoS | Vol SoA\n";
-    std::cout << "------------|---------|---------|----------|----------|---------|--------\n";
+    std::cout << "Data Size   | SMA AoS | SMA SoA | VWAP AoS | VWAP SoA | Vol AoS | Vol SoA | SMA SIMD |\n";
+    std::cout << "------------|---------|---------|----------|----------|---------|---------|----------|\n";
 
     for (size_t n : sizes) {
         auto aosData = generateBarsAoS(n);
@@ -118,9 +128,10 @@ int main() {
         auto vwapSoa = timeSoAVWAP(soaData);
         auto volAos = timeAoSVol(aosData);
         auto volSoa = timeSoAVol(soaData);
+        auto smaSIMDTime = timeSIMDSMA(soaData);
 
-        printf("%-12zu| %-8lld| %-8lld| %-9lld| %-9lld| %-8lld| %-8lld\n",
-               n, smaAos, smaSoa, vwapAos, vwapSoa, volAos, volSoa);
+        printf("%-12zu| %-8lld| %-8lld| %-9lld| %-9lld| %-8lld| %-8lld| %-9lld\n",
+       n, smaAos, smaSoa, vwapAos, vwapSoa, volAos, volSoa, smaSIMDTime);
     }
 
     return 0;

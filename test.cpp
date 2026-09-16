@@ -8,6 +8,7 @@
 #include "src/Indicators.h"
 #include "src/Portfolio.h"
 #include "src/Order.h"
+#include "src/MarketDataSoA.h"
 TEST_CASE("Dummy passing test", "[dummy]") {
     REQUIRE(1 + 1 == 2);
 }
@@ -100,9 +101,24 @@ TEST_CASE("PnL Accounting Test") {
     double finalValue = p1.MtM(0.0);
     REQUIRE(finalValue == Catch::Approx(1050.0));
 
+}
 
+TEST_CASE("SIMD SMA matches scalar SMA") {
+    // use the same 5 test bars, build a MarketDataSoA from them
+    // REQUIRE(smaSIMD(data, 3) == Catch::Approx(smaA(data, 3)));
+    // REQUIRE(smaSIMD(data, 5) == Catch::Approx(smaA(data, 5)));
 
+    MarketDataSoA data;
+    data.timestamps = {1, 2, 3, 4, 5};
+    data.opens =      {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.highs =      {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.lows =       {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.closes =     {10.0, 20.0, 30.0, 40.0, 50.0};
+    data.volumes =    {100.0, 200.0, 300.0, 150.0, 250.0};
+    double res =smaSIMD(data,3);
 
+    REQUIRE(res ==Catch::Approx(40.0));
 
-
+    double res2 = smaSIMD(data,5);
+    REQUIRE(res2 == Catch::Approx(30.0));
 }
