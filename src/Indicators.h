@@ -21,6 +21,10 @@ double vwapA(const MarketDataSoA& view, size_t window);
 double rollingVolA(const MarketDataSoA& view, size_t window);
 
 double smaSIMD(const MarketDataSoA& view, size_t window);
+double vwapSIMD(const MarketDataSoA& view, size_t window);
+double rollingVolSIMD(const MarketDataSoA& view, size_t window);
+
+
 
 
 

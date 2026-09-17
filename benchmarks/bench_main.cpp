@@ -109,14 +109,32 @@ long long timeSIMDSMA(const MarketDataSoA& data) {
     (void)dummy;
     return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / ITERS;
 }
+long long timeSIMDVWAP(const MarketDataSoA& data) {
+    double sink = 0.0;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < ITERS; i++) sink += vwapSIMD(data, WINDOW);
+    auto end = std::chrono::high_resolution_clock::now();
+    volatile double dummy = sink;
+    (void)dummy;
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / ITERS;
+}
 
+long long timeSIMDVol(const MarketDataSoA& data) {
+    double sink = 0.0;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < ITERS; i++) sink += rollingVolSIMD(data, WINDOW);
+    auto end = std::chrono::high_resolution_clock::now();
+    volatile double dummy = sink;
+    (void)dummy;
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / ITERS;
+}
 int main() {
     std::vector<size_t> sizes = {2500, 10000, 100000, 500000, 1000000};
 
-    std::cout << "=== AoS vs SoA Benchmark (window=" << WINDOW << ", iters=" << ITERS << ") ===\n\n";
+    std::cout << "=== AoS vs SoA vs SIMD Benchmark (window=" << WINDOW << ", iters=" << ITERS << ") ===\n\n";
 
-    std::cout << "Data Size   | SMA AoS | SMA SoA | VWAP AoS | VWAP SoA | Vol AoS | Vol SoA | SMA SIMD |\n";
-    std::cout << "------------|---------|---------|----------|----------|---------|---------|----------|\n";
+    std::cout << "Data Size   | SMA AoS | SMA SoA | SMA SIMD | VWAP AoS | VWAP SoA | VWAP SIMD | Vol AoS | Vol SoA | Vol SIMD\n";
+    std::cout << "------------|---------|---------|----------|----------|----------|-----------|---------|---------|----------\n";
 
     for (size_t n : sizes) {
         auto aosData = generateBarsAoS(n);
@@ -124,14 +142,16 @@ int main() {
 
         auto smaAos = timeAoSSMA(aosData);
         auto smaSoa = timeSoASMA(soaData);
+        auto smaSIMDTime = timeSIMDSMA(soaData);
         auto vwapAos = timeAoSVWAP(aosData);
         auto vwapSoa = timeSoAVWAP(soaData);
+        auto vwapSIMDTime = timeSIMDVWAP(soaData);
         auto volAos = timeAoSVol(aosData);
         auto volSoa = timeSoAVol(soaData);
-        auto smaSIMDTime = timeSIMDSMA(soaData);
+        auto volSIMDTime = timeSIMDVol(soaData);
 
-        printf("%-12zu| %-8lld| %-8lld| %-9lld| %-9lld| %-8lld| %-8lld| %-9lld\n",
-       n, smaAos, smaSoa, vwapAos, vwapSoa, volAos, volSoa, smaSIMDTime);
+        printf("%-12zu| %-8lld| %-8lld| %-9lld| %-9lld| %-9lld| %-10lld| %-8lld| %-8lld| %-9lld\n",
+               n, smaAos, smaSoa, smaSIMDTime, vwapAos, vwapSoa, vwapSIMDTime, volAos, volSoa, volSIMDTime);
     }
 
     return 0;

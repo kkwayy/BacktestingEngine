@@ -122,3 +122,35 @@ TEST_CASE("SIMD SMA matches scalar SMA") {
     double res2 = smaSIMD(data,5);
     REQUIRE(res2 == Catch::Approx(30.0));
 }
+
+
+TEST_CASE("SIMD Vwap matches scalar Vwap") {
+    MarketDataSoA data;
+    data.timestamps = {1, 2, 3, 4, 5};
+    data.opens =      {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.highs =      {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.lows =       {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.closes =     {10.0, 20.0, 30.0, 40.0, 50.0};
+    data.volumes =    {100.0, 200.0, 300.0, 150.0, 250.0};
+
+
+    double res = vwapSIMD(data,3);
+
+    REQUIRE(res==Catch::Approx(39.2857142));
+}
+
+TEST_CASE("SIMD rolling vol matches scalar rollingVol") {
+    MarketDataSoA data;
+    data.timestamps = {1, 2, 3, 4, 5};
+    data.opens =      {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.highs =      {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.lows =       {0.0, 0.0, 0.0, 0.0, 0.0};
+    data.closes =     {10.0, 20.0, 30.0, 40.0, 50.0};
+    data.volumes =    {100.0, 200.0, 300.0, 150.0, 250.0};
+
+
+
+    double res1 = rollingVolSIMD(data,3);
+
+    REQUIRE(res1 == Catch::Approx(0.12730).epsilon(1e-4));
+}
