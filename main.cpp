@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 #include "src/Bar.h"
 #include "src/DataLoader.h"
@@ -9,6 +10,7 @@
 #include "src/BuyandHold.h"
 #include "src/Order.h"
 #include "src/SMA.h"
+#include "src/SweepTask.h"
 
 int main() {
     std::vector<Bar> OHLCV = loadCSV("data/AAPL.csv");
@@ -51,10 +53,6 @@ int main() {
     std::vector<double> equityCurve2 = backtester2.execute();
 
     std::cout << equityCurve2.size() <<'\n';
-    std::cout << "Equity[0]: " << equityCurve2[0] << '\n';
-    std::cout << "Equity[1]: " << equityCurve2[1] << '\n';
-    std::cout << "Equity[2]: " << equityCurve2[2] << '\n';
-    std::cout << "Equity[last]: " << equityCurve2.back() << '\n';
 
     std::ofstream out2("equity_curve2.csv");
     out2 <<"Price\n";
@@ -68,7 +66,38 @@ int main() {
     std::cout<<"Wrote equity_curve.csv (" <<equityCurve2.size()<<" points). Plot with python plot_equitycurve2.py\n";
 
 
+    std::vector<SweepTask> tasks;
+    for (size_t s = 5; s <= 50; s += 5) {
+        for (size_t l = s + 10; l <= 200; l += 10) {
+            tasks.push_back({s, l, 0.0});
+        }
+    }
 
+    std::vector<Bar> bigData(500000);
+    for (size_t i = 0; i < bigData.size(); i++) {
+        bigData[i] = {(int64_t)i, 100.0, 105.0, 95.0, 100.0 + (i % 10), 1000.0};
+    }
+    std::cout << "Tasks: " << tasks.size() << '\n';
+
+    // Sequential
+    auto start1 = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < tasks.size(); i++) {
+        RunSweep(bigData, tasks[i]);
+    }
+    auto end1 = std::chrono::high_resolution_clock::now();
+    auto seqTime = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1).count();
+    std::cout << "Sequential: " << seqTime << " ms\n";
+
+
+    // Reset tasks
+    for (auto& t : tasks) t.finalEquity = 0.0;
+
+    // Parallel
+    auto start2 = std::chrono::high_resolution_clock::now();
+    runParallelSweep(bigData, tasks);
+    auto end2 = std::chrono::high_resolution_clock::now();
+    auto parTime = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count();
+    std::cout << "Parallel: " << parTime << " ms\n";
     return 0;
 
 

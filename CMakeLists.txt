@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
 
 
 # 1. Main Application Executable
-add_executable(BacktestingEngine main.cpp src/DataLoader.cpp src/Backtester.cpp src/BuyandHold.cpp src/MarketView.cpp src/Portfolio.cpp src/SMA.cpp src/Indicators.cpp)
+add_executable(BacktestingEngine main.cpp src/DataLoader.cpp src/Backtester.cpp src/BuyandHold.cpp src/MarketView.cpp src/Portfolio.cpp src/SMA.cpp src/Indicators.cpp src/SweepTask.cpp)
 
 # 2. Fetch Catch2 v3 framework
 include(FetchContent)
