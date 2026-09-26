@@ -2,7 +2,7 @@
 
 An event-driven backtesting engine built from scratch in C++20. It replays historical OHLCV market data through a pluggable strategy interface, producing fills and a marked-to-market equity curve — then goes further into systems-level performance: a cache-friendly Structure-of-Arrays data layout, AVX2 SIMD-vectorised indicators, and multi-threaded parameter sweeps with core pinning.
 
-Built as a deliberate learning progression from a [portfolio optimisation engine](https://github.com/yourusername/portfolio-engine) — the optimiser answers "what should the portfolio look like?", the backtester answers "how would that strategy have actually performed?"
+Built as a deliberate learning progression from a [portfolio optimisation engine](https://github.com/kkwayy/portfolio-engine) — the optimiser answers "what should the portfolio look like?", the backtester answers "how would that strategy have actually performed?"
 
 **Headline results**
 
