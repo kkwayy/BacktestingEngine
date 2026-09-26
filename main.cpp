@@ -14,11 +14,6 @@
 
 int main() {
     std::vector<Bar> OHLCV = loadCSV("data/AAPL.csv");
-    std::cout << "Open: " << OHLCV[0].open << " Close: " << OHLCV[0].close << '\n';
-    std::cout << " Size: " << OHLCV.back().open << " "<< OHLCV.back().close << '\n';
-    std::cout << "Dimesnions" << OHLCV.size() << '\n';
-
-    std::cout << "Time:" << OHLCV[0].timestamp << '\n';
 
     BuyandHold s1;
 
@@ -26,11 +21,6 @@ int main() {
 
     std::vector<double> equityCurve = backtester.execute();
 
-    std::cout << equityCurve.size() <<'\n';
-    std::cout << "Equity[0]: " << equityCurve[0] << '\n';
-    std::cout << "Equity[1]: " << equityCurve[1] << '\n';
-    std::cout << "Equity[2]: " << equityCurve[2] << '\n';
-    std::cout << "Equity[last]: " << equityCurve.back() << '\n';
 
     //Equity Curve display
 
@@ -52,7 +42,7 @@ int main() {
 
     std::vector<double> equityCurve2 = backtester2.execute();
 
-    std::cout << equityCurve2.size() <<'\n';
+
 
     std::ofstream out2("equity_curve2.csv");
     out2 <<"Price\n";
@@ -63,7 +53,7 @@ int main() {
         out2<<p<<'\n';
     out2.close();
 
-    std::cout<<"Wrote equity_curve.csv (" <<equityCurve2.size()<<" points). Plot with python plot_equitycurve2.py\n";
+    std::cout<<"Wrote equity_curve2.csv (" <<equityCurve2.size()<<" points). Plot with python plot_equitycurve2.py\n";
 
 
     std::vector<SweepTask> tasks;
@@ -79,31 +69,38 @@ int main() {
     }
     std::cout << "Tasks: " << tasks.size() << '\n';
 
-    // Sequential
+    // Sequential — OS-scheduled, no pinning
     auto start1 = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < tasks.size(); i++) {
-        RunSweep(bigData, tasks[i], 0);
+        RunSweep(bigData, tasks[i], 0, false);
     }
     auto end1 = std::chrono::high_resolution_clock::now();
-    auto seqTime = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1).count();
+    auto seqTime = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - start1).count();
     std::cout << "Sequential: " << seqTime << " ms\n";
 
-
-    // Reset tasks
+    // Parallel — OS-scheduled (default)
     for (auto& t : tasks) t.finalEquity = 0.0;
-
-    // Parallel
     auto start2 = std::chrono::high_resolution_clock::now();
-    runParallelSweep(bigData, tasks);
+    runParallelSweep(bigData, tasks, false);
     auto end2 = std::chrono::high_resolution_clock::now();
     auto parTime = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count();
-    std::cout << "Parallel: " << parTime << " ms\n";
+    std::cout << "Parallel (OS-scheduled): " << parTime << " ms\n";
+
+    // Parallel — pinned, for comparison
+    for (auto& t : tasks) t.finalEquity = 0.0;
+    auto start3 = std::chrono::high_resolution_clock::now();
+    runParallelSweep(bigData, tasks, true);
+    auto end3 = std::chrono::high_resolution_clock::now();
+    auto pinTime = std::chrono::duration_cast<std::chrono::milliseconds>(end3 - start3).count();
+    std::cout << "Parallel (pinned):       " << pinTime << " ms\n";
+
+    std::cout << "Speedup (OS-scheduled): " << (double)seqTime / parTime << "x\n";
+    std::cout << "Speedup (pinned):       " << (double)seqTime / pinTime << "x\n";
+
     return 0;
-
-
-
-
-
-
-
 }
+
+
+
+
+

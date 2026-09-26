@@ -42,6 +42,9 @@ double vwap(const MarketView &view, size_t window) {
         totalVol += view(widx -i  -1 ).volume;
     }
 
+    if (totalVol==0.0) {
+        return 0.0;
+    }
     double vwap = product/totalVol ;
 
     return vwap;
@@ -126,7 +129,9 @@ double vwapA(const MarketDataSoA &view, size_t window) {
         product += view.closes[l - i] * view.volumes[l - i];
         totalVol += view.volumes[l - i];
     }
-
+    if (totalVol == 0.0 ) {
+        return 0.0;
+    }
     double vwap = product/totalVol ;
 
     return vwap;
@@ -278,6 +283,9 @@ double vwapSIMD(const MarketDataSoA &view, size_t window) {
     }
 
 
+    if (total2 == 0.0) {
+        return 0.0;
+    }
     double vwap = total / total2;
 
     return vwap;

@@ -154,3 +154,98 @@ TEST_CASE("SIMD rolling vol matches scalar rollingVol") {
 
     REQUIRE(res1 == Catch::Approx(0.12730).epsilon(1e-4));
 }
+
+TEST_CASE("INVALID WINDOW LENGTH") {
+    std::vector<Bar> bars;
+
+    Bar bar1{1, 10.0, 10.0, 10.0, 10.0, 100.0};
+    Bar bar2{2, 20.0, 20.0, 20.0, 20.0, 200.0};
+    Bar bar3{3, 30.0, 30.0, 30.0, 30.0, 300.0};
+
+
+    bars.push_back(bar1);
+    bars.push_back(bar2);
+    bars.push_back(bar3);
+
+    MarketView view(bars,bars.size());
+
+    double res1 = sma(view,50);
+    REQUIRE(res1 == 0.0);
+    double res2 = rollingVol(view,50);
+    REQUIRE(res2 == 0.0);
+    double res3 = vwap(view,50);
+    REQUIRE(res3 == 0.0);
+
+
+}
+
+TEST_CASE("WINDOW == BARS") {
+    std::vector<Bar> bars;
+
+    Bar bar1{1, 10.0, 10.0, 10.0, 10.0, 100.0};
+    Bar bar2{2, 20.0, 20.0, 20.0, 20.0, 200.0};
+    Bar bar3{3, 30.0, 30.0, 30.0, 30.0, 300.0};
+
+
+    bars.push_back(bar1);
+    bars.push_back(bar2);
+    bars.push_back(bar3);
+
+    MarketView view(bars,bars.size());
+
+    double res1 = sma(view,3);
+    REQUIRE(res1 == 20.0);
+    double res2 = rollingVol(view,3);
+    REQUIRE(res2 == 0.0);
+    double res3 = vwap(view,3);
+    REQUIRE(res3==Catch::Approx(23.3333));
+
+}
+
+TEST_CASE("WINDOW == 1") {
+    std::vector<Bar> bars;
+
+    Bar bar1{1, 10.0, 10.0, 10.0, 10.0, 100.0};
+    Bar bar2{2, 20.0, 20.0, 20.0, 20.0, 200.0};
+    Bar bar3{3, 30.0, 30.0, 30.0, 30.0, 300.0};
+
+
+    bars.push_back(bar1);
+    bars.push_back(bar2);
+    bars.push_back(bar3);
+
+    MarketView view(bars,bars.size());
+
+    double res1 = sma(view,1);
+    REQUIRE(res1 == 30.0);
+    double res2 = vwap(view,1);
+    REQUIRE(res2 == 30.0);
+
+
+}
+
+TEST_CASE("ZERO VOL") {
+    std::vector<Bar> bars;
+
+    Bar bar1{1, 10.0, 10.0, 10.0, 10.0, 0.0};
+    Bar bar2{2, 20.0, 20.0, 20.0, 20.0, 0.0};
+    Bar bar3{3, 30.0, 30.0, 30.0, 30.0, 0.0};
+
+
+    bars.push_back(bar1);
+    bars.push_back(bar2);
+    bars.push_back(bar3);
+
+    MarketView view(bars,bars.size());
+
+    double res1 = vwap(view,3);
+    REQUIRE(res1 == 0.0);
+
+    MarketDataSoA soa;
+    soa.closes  = {10.0, 20.0, 30.0};
+    soa.volumes = {0.0, 0.0, 0.0};
+    REQUIRE(vwapA(soa, 3) == 0.0);
+    REQUIRE(vwapSIMD(soa, 3) == 0.0);
+
+
+}
