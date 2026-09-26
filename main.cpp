@@ -82,7 +82,7 @@ int main() {
     // Sequential
     auto start1 = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < tasks.size(); i++) {
-        RunSweep(bigData, tasks[i]);
+        RunSweep(bigData, tasks[i], 0);
     }
     auto end1 = std::chrono::high_resolution_clock::now();
     auto seqTime = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1).count();
